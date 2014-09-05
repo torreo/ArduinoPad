@@ -22,7 +22,7 @@ void setup()
     led_states[i] = LED_OFF;
   }
   
-  Serial.begin(9600);
+  Serial.begin(38400);
 
   pinMode(rxPin, INPUT);
   pinMode(txPin, OUTPUT);
@@ -48,13 +48,27 @@ void updateState()
 void loop()
 {
   String command = "";
-  while (mySerial.available())
+  while (mySerial.available() > 0)
   {
     char c = mySerial.read();
+    Serial.println(c);
+    delay(10);
     command.concat(c);
   }
+  
+  command.trim();
+  if (command == "")
+    return;
 
   Serial.println("command is -> " + command);
+  Serial.println(command.length());
+
+  if (command == "ab")
+  {
+    led_states[0] = led_states[0] == LED_OFF ? LED_ON : LED_OFF;
+    led_states[1] = led_states[1] == LED_OFF ? LED_ON : LED_OFF;
+    Serial.println("led 0,1 change");
+  }
 
   if (command == "a")
   {
@@ -76,6 +90,11 @@ void loop()
     led_states[3] = led_states[3] == LED_OFF ? LED_ON : LED_OFF;
     Serial.println("led 3 change");
   }
+
+  char charBuf[1000];
+  command.toCharArray(charBuf, 1000);
+  mySerial.write(charBuf);
+  mySerial.flush();
  
   updateState();
 }
